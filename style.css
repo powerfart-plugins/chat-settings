@@ -1,0 +1,7 @@
+.chat-settings-container > div {
+    position: inherit;
+    height: 70vh;
+}
+.chat-settings-container > div > div:first-child {
+    display: none;
+}

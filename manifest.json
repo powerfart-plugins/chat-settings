@@ -1,0 +1,7 @@
+{
+  "name": "Chat settings",
+  "description": "Plugin adding a command that opens user settings in the chat",
+  "author": "Xinos",
+  "version": "1.0.0",
+  "license": "MIT"
+}
