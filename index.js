@@ -70,7 +70,8 @@ module.exports = class ChatSettings extends Plugin {
           render: () => React.createElement(SettingsView, {
             section,
             sections: this.sections
-          })
+          }),
+          isComponent: true
         } } }
       }
     };
@@ -92,7 +93,7 @@ module.exports = class ChatSettings extends Plugin {
     const Embed = getModule((m) => m.default && m.default.displayName === 'Embed', false);
     inject('chat-settings-embed', Embed.default.prototype, 'render', (args, res) => {
       const children = findInReactTree(res, ({ props }) => props?.render);
-      if (children) {
+      if (children && children.props.isComponent) {
         return React.createElement('div', {
           className: 'chat-settings-container',
           children: children.props.render()
