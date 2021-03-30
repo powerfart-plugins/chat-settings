@@ -2,6 +2,7 @@
     position: inherit;
     height: 70vh;
 }
-.chat-settings-container > div > div:first-child {
+.chat-settings-container > div > div:first-child,
+.chat-settings-container > div > div:last-child > div > div > div:nth-child(2) {
     display: none;
 }

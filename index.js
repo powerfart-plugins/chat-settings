@@ -1,4 +1,4 @@
-/* eslint-disable object-property-newline */
+/* eslint-disable object-property-newline,no-use-before-define */
 const { Plugin } = require('powercord/entities');
 const { inject, uninject } = require('powercord/injector');
 const { React, getModule } = require('powercord/webpack');
@@ -21,9 +21,17 @@ module.exports = class ChatSettings extends Plugin {
   }
 
   genSections () {
-    this.sections = [];
-    powercord.once('loaded', () => {
-      this.sections = [
+    if (powercord.initialized) {
+      this.sections = getArray();
+    } else {
+      this.sections = [];
+      powercord.once('loaded', () => {
+        this.sections = getArray();
+      });
+    }
+
+    function getArray () {
+      return [
         ...getUserSettingsSections({}),
         ...Object.values(powercord.api.settings.tabs)
           .map(({ label, render }) => ({
@@ -31,8 +39,9 @@ module.exports = class ChatSettings extends Plugin {
             section: (typeof label === 'function') ? label() : label,
             label: (typeof label === 'function') ? label() : label
           }))
-      ];
-    });
+      ]
+        .filter(({ element }) => element);
+    }
   }
 
   registerCommand () {
@@ -53,7 +62,6 @@ module.exports = class ChatSettings extends Plugin {
     if (!section) {
       return false;
     }
-    console.log(section);
 
     return {
       result: {
@@ -72,7 +80,9 @@ module.exports = class ChatSettings extends Plugin {
     const tab = args.join(' ').toLowerCase();
     return {
       commands: this.sections
-        .filter(({ label }) => label.toLowerCase().includes(tab))
+        .filter(({ label, section }) => (
+          label.toLowerCase().includes(tab) && section !== 'My Account' // crash after opening settings
+        ))
         .map(({ label }) => ({ command: label })),
       header: 'Settings tabs'
     };
