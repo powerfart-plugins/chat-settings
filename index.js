@@ -1,8 +1,7 @@
 /* eslint-disable object-property-newline,no-use-before-define */
+
 const { Plugin } = require('powercord/entities');
-const { inject, uninject } = require('powercord/injector');
 const { React, getModule } = require('powercord/webpack');
-const { findInReactTree } = require('powercord/util');
 
 const SettingsView = getModule((m) => m?.displayName === 'SettingsView', false);
 const { getUserSettingsSections } = getModule([ 'getUserSettingsSections' ], false);
@@ -12,12 +11,10 @@ module.exports = class ChatSettings extends Plugin {
     this.loadStylesheet('style.css');
     this.genSections();
     this.registerCommand();
-    this.patchEmbed();
   }
 
   pluginWillUnload () {
     powercord.api.commands.unregisterCommand('settings');
-    uninject('chat-settings-embed');
   }
 
   genSections () {
@@ -66,13 +63,13 @@ module.exports = class ChatSettings extends Plugin {
     return {
       result: {
         type: 'component',
-        provider: { name: { props: { // props.render() so that findInReactTree can find this method easily
-          render: () => React.createElement(SettingsView, {
+        title: React.createElement('div', {
+          className: 'chat-settings-container',
+          children: React.createElement(SettingsView, {
             section,
             sections: this.sections
-          }),
-          isComponent: true
-        } } }
+          })
+        })
       }
     };
   }
@@ -87,20 +84,5 @@ module.exports = class ChatSettings extends Plugin {
         .map(({ label }) => ({ command: label })),
       header: 'Settings tabs'
     };
-  }
-
-  patchEmbed () { // basic patch hack
-    const Embed = getModule((m) => m.default && m.default.displayName === 'Embed', false);
-    inject('chat-settings-embed', Embed.default.prototype, 'render', (args, res) => {
-      const children = findInReactTree(res, ({ props }) => props?.render);
-      if (children && children.props.isComponent) {
-        return React.createElement('div', {
-          className: 'chat-settings-container',
-          children: children.props.render()
-        });
-      }
-      return res;
-    });
-    Embed.default.displayName = 'Embed';
   }
 };
