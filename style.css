@@ -6,3 +6,6 @@
 .chat-settings-container > div > div:last-child > div > div > div:nth-child(2) {
     display: none;
 }
+.chat-settings-container > div > div > div > div > main {
+    padding: 20px;
+}
